@@ -1,35 +1,21 @@
-#include "sensor_ds18b20.h"
-#include "sensor_moisture.h"
-#include "sensor_dht22.h"
-#include "sensor_bh1750.h"
+#include <Wire.h>
+#include "soil_sensor.h"
+#include "ds18b20_sensor.h"
+#include "dht22_sensor.h"
+#include "bh1750_sensor.h"
 
 void setup() {
   Serial.begin(115200);
-
   initDS18B20();
   initDHT();
-  initLight();
-  delay(200);
+  initBH1750();
 }
 
 void loop() {
+  Serial.println("\n=== Sensor Readings ===");
+  readSoilMoisture();
   readDS18B20();
-  readMoisture();
   readDHT();
-  readLight();
-
-  Serial.println("==== Sensor Readings ====");
-  for (int i = 0; i < 9; i++) {
-    Serial.print("Soil Temp "); Serial.print(i); Serial.print(": ");
-    Serial.print(soilTemps[i]); Serial.print("°C\t");
-
-    Serial.print("Moisture "); Serial.print(i); Serial.print(": ");
-    Serial.println(moistureVals[i]);
-  }
-
-  Serial.print("Air Temp: "); Serial.println(airTemp);
-  Serial.print("Humidity: "); Serial.println(airHumidity);
-  Serial.print("Light Intensity: "); Serial.print(lightLevel); Serial.println(" lux");
-
-  delay(10000); // Read every 10s
+  readBH1750();
+  delay(5000);  // Wait 5 seconds
 }
