@@ -1,4 +1,3 @@
-// secrets.h
 #pragma once
 
 const char* ssid = ""; // wifi name

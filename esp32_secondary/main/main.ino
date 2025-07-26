@@ -22,5 +22,5 @@ void setup() {
 void loop() {
   readSoilSensors();
   sendSoilData();
-  delay(20000);  // Send every 20 seconds
+  delay(20000);  // Sending every 20 seconds
 }

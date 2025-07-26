@@ -13,7 +13,7 @@ void OnSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 void initESPNow() {
   if (esp_now_init() != ESP_OK) {
-    Serial.println("❌ ESP-NOW init failed");
+    Serial.println("ESP-NOW init failed");
     return;
   }
 
@@ -25,9 +25,9 @@ void initESPNow() {
   peerInfo.encrypt = false;
 
   if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("❌ Failed to add peer");
+    Serial.println("Failed to add peer");
   } else {
-    Serial.println("✅ Peer added successfully");
+    Serial.println("Peer added successfully");
   }
 }
 
