@@ -137,5 +137,5 @@ const char* scriptURL = "https://script.google.com/macros/s/XXX/exec";
 
 ## 📜 License
 
-MIT License © 2025 Damath De Silva
+Apache License 2.0 © 2025 Damath De Silva
 
