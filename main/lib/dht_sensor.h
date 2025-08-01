@@ -1,14 +1,10 @@
 #pragma once
 #include <DHT.h>
-#define DHTPIN 16
-#define DHTTYPE DHT22
-DHT dht(DHTPIN, DHTTYPE);
-float dhtTemp, dhtHum;
+#include "config.h"
 
-void initDHT() {
-  dht.begin();
-}
-void readDHT() {
-  dhtTemp = dht.readTemperature();
-  dhtHum = dht.readHumidity();
-}
+extern DHT dht;
+extern float dhtTemp, dhtHum;
+
+void initDHT();
+void readDHT();
+bool isDHTValid();
