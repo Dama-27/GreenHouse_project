@@ -5,13 +5,13 @@
 #include <DallasTemperature.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include "secrets.h"  // Contains ssid, password, scriptURL
+#include "secrets.h" 
 
-// --- Local Soil Moisture Sensors (ADC1 Pins) ---
+//Local Soil Moisture Sensors (ADC1 Pins)
 const int soilPins[6] = {32, 33, 34, 35, 36, 39};
 int soilValues[6];
 
-// --- DS18B20 Sensors on GPIO4, GPIO13, GPIO14 ---
+//DS18B20 Sensors on GPIO4, GPIO13, GPIO14
 #define ONE_WIRE_BUS_1 4
 #define ONE_WIRE_BUS_2 13
 #define ONE_WIRE_BUS_3 14
@@ -29,19 +29,19 @@ DeviceAddress dsAddr2[3];
 DeviceAddress dsAddr3[3];
 int count1 = 0, count2 = 0, count3 = 0;
 
-// --- DHT22 Temperature & Humidity Sensor ---
+//DHT22 Temperature & Humidity Sensor
 #define DHTPIN 16
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 
-// --- Remote ESP32-B Soil Data (via ESP-NOW) ---
+//Remote ESP32-B Soil Data (via ESP-NOW)
 typedef struct SoilData {
   int moisture[3];
 } SoilData;
 SoilData remoteData;
 bool newRemoteData = false;
 
-// --- ESP-NOW Receive Callback ---
+//ESP-NOW Receive Callback
 void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
   if (len == sizeof(remoteData)) {
     memcpy(&remoteData, data, sizeof(remoteData));
@@ -52,7 +52,7 @@ void OnDataRecv(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
 void setup() {
   Serial.begin(115200);
 
-  // --- Connect to Wi-Fi ---
+  //Connect to Wi-Fi
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi");
@@ -63,7 +63,7 @@ void setup() {
   Serial.println(" Connected!");
   delay(3000);
 
-  // --- Print Current Wi-Fi Channel and MAC ---
+  //Print Current Wi-Fi Channel and MAC
   uint8_t channel;
   wifi_second_chan_t second;
   esp_wifi_get_channel(&channel, &second);
@@ -72,13 +72,13 @@ void setup() {
   Serial.print("ESP32-A MAC: ");
   Serial.println(WiFi.macAddress());
 
-  // --- Initialize Sensors ---
+  //Initialize Sensors
   dsGroup1.begin();
   dsGroup2.begin();
   dsGroup3.begin();
   dht.begin();
 
-  // --- Search for DS18B20 sensors ---
+  //Search for DS18B20 sensors
   Serial.println("Searching DS18B20 on GPIO4");
   while (oneWire1.search(dsAddr1[count1]) && count1 < 3) count1++;
   Serial.println("Searching DS18B20 on GPIO13");
@@ -86,48 +86,48 @@ void setup() {
   Serial.println("Searching DS18B20 on GPIO14");
   while (oneWire3.search(dsAddr3[count3]) && count3 < 3) count3++;
 
-  // --- Initialize ESP-NOW ---
+  //Initialize ESP-NOW
   if (esp_now_init() != ESP_OK) {
-    Serial.println("❌ ESP-NOW init failed");
+    Serial.println("ESP-NOW init failed");
     return;
   }
   esp_now_register_recv_cb(OnDataRecv);
-  Serial.println("✅ ESP-NOW Ready");
+  Serial.println("ESP-NOW Ready");
 }
 
 void loop() {
-  // --- Manual Calibration of Local Soil Sensors ---
-  // Sensor 1
+  //Manual Calibration of Local Soil Sensors
+  //S1
   int raw1 = analogRead(soilPins[0]);
-  int soil1 = map(raw1, 3830, 1610, 0, 100);  // Calibrate as needed
+  int soil1 = map(raw1, 3830, 1610, 0, 100);
   soil1 = constrain(soil1, 0, 100);
 
-  // Sensor 2
+  //S2
   int raw2 = analogRead(soilPins[1]);
-  int soil2 = map(raw2, 3330, 1480, 0, 100);  // Calibrate as needed
+  int soil2 = map(raw2, 3330, 1480, 0, 100);
   soil2 = constrain(soil2, 0, 100);
 
-  // Sensor 3
+  //S3
   int raw3 = analogRead(soilPins[2]);
-  int soil3 = map(raw3, 3040, 2330, 0, 100);  // Calibrate as needed
+  int soil3 = map(raw3, 3040, 2330, 0, 100);
   soil3 = constrain(soil3, 0, 100);
 
-  // Sensor 4
+  //S4
   int raw4 = analogRead(soilPins[3]);
-  int soil4 = map(raw4, 3770, 1612, 0, 100);  // Calibrate as needed
+  int soil4 = map(raw4, 3770, 1612, 0, 100);
   soil4 = constrain(soil4, 0, 100);
 
-  // Sensor 5
+  //S5
   int raw5 = analogRead(soilPins[4]);
-  int soil5 = map(raw5, 3885, 1650, 0, 100);  // Calibrate as needed
+  int soil5 = map(raw5, 3885, 1650, 0, 100);
   soil5 = constrain(soil5, 0, 100);
 
-  // Sensor 6
+  //S6
   int raw6 = analogRead(soilPins[5]);
-  int soil6 = map(raw6, 3150, 1930, 0, 100);  // Calibrate as needed
+  int soil6 = map(raw6, 3150, 1930, 0, 100);
   soil6 = constrain(soil6, 0, 100);
 
-  // --- Read DS18B20 Sensors ---
+  //Read DS18B20 Sensors
   float dsTemps[9];
   dsGroup1.requestTemperatures();
   for (int i = 0; i < count1; i++) {
@@ -144,11 +144,11 @@ void loop() {
     dsTemps[i + 6] = dsGroup3.getTempC(dsAddr3[i]);
   }
 
-  // --- Read DHT22 Sensor ---
+  //Read DHT22 Sensor
   float dhtTemp = dht.readTemperature();
   float dhtHum = dht.readHumidity();
 
-  // --- Remote Data (from ESP-B) ---
+  //Remote Data (from ESP-B)
   int r1 = -1, r2 = -1, r3 = -1;
   if (newRemoteData) {
     r1 = remoteData.moisture[0];
@@ -157,7 +157,7 @@ void loop() {
     newRemoteData = false;
   }
 
-  // --- Prepare JSON Payload ---
+  //Prepare JSON Payload
   String postData = "{";
   postData += "\"soil1\":" + String(soil1) + ",";
   postData += "\"soil2\":" + String(soil2) + ",";
@@ -176,7 +176,7 @@ void loop() {
   Serial.println("=== JSON Payload ===");
   Serial.println(postData);
 
-  // --- Upload to Google Sheets ---
+  //Upload to Google Sheets
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(scriptURL);
@@ -186,8 +186,8 @@ void loop() {
     Serial.println(code);
     http.end();
   } else {
-    Serial.println("❌ WiFi not connected");
+    Serial.println("WiFi not connected");
   }
 
-  delay(900000);  // 20 seconds delay
+  delay(1800000);  //30 min delay
 }
