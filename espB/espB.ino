@@ -2,10 +2,10 @@
 #include <esp_now.h>
 #include "esp_wifi.h"
 
-uint8_t mainESPAddress[] = {0x68, 0x25, 0xDD, 0x33, 0x74, 0x8C};  // MAC of ESP32-A
+uint8_t mainESPAddress[] = {0x68, 0x25, 0xDD, 0x33, 0x74, 0x8C};  //MAC of ESP32-A
 
-// Soil sensors
-const int soilPins[3] = {32, 33, 34};  // ADC1 only
+//Soil sensors
+const int soilPins[3] = {32, 33, 34};
 int soilValues[3];
 
 typedef struct SoilData {
@@ -26,13 +26,13 @@ void setup() {
   WiFi.disconnect();
   delay(100);
 
-  // Set to same channel as ESP32-A (e.g., 9)
+  //Set to same channel as ESP32-A
   esp_wifi_set_channel(7, WIFI_SECOND_CHAN_NONE);
   Serial.print("ESP32-B MAC: ");
   Serial.println(WiFi.macAddress());
 
   if (esp_now_init() != ESP_OK) {
-    Serial.println("❌ ESP-NOW init failed");
+    Serial.println("ESP-NOW init failed");
     return;
   }
 
@@ -40,29 +40,29 @@ void setup() {
 
   esp_now_peer_info_t peerInfo = {};
   memcpy(peerInfo.peer_addr, mainESPAddress, 6);
-  peerInfo.channel = 0;  // use current channel
+  peerInfo.channel = 0; 
   peerInfo.encrypt = false;
 
   if (esp_now_add_peer(&peerInfo) != ESP_OK) {
-    Serial.println("❌ Failed to add peer");
+    Serial.println("Failed to add peer");
   } else {
-    Serial.println("✅ Peer added successfully");
+    Serial.println("Peer added successfully");
   }
 }
 
 void loop() {
   for (int i = 0; i < 3; i++) {
-    int raw = analogRead(soilPins[i]);  // Read raw ADC
-    int percent = map(raw, 3600, 1590, 0, 100);  // Example calibration
+    int raw = analogRead(soilPins[i]);  //raw ADC
+    int percent = map(raw, 3600, 1590, 0, 100);  //calibration
     soilValues[i] = constrain(percent, 0, 100);
   }
 
-  data.moisture[0] = soilValues[0]; //soilValues[0];
+  data.moisture[0] = soilValues[0];
   data.moisture[1] = soilValues[1];
   data.moisture[2] = soilValues[2];
 
   Serial.printf("Sending: %d%%, %d%%, %d%%\n", soilValues[0], soilValues[1], soilValues[2]);
   esp_now_send(mainESPAddress, (uint8_t *)&data, sizeof(data));
 
-  delay(900000);
+  delay(1800000);
 }
